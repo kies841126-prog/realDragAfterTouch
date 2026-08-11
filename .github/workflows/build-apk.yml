@@ -11,9 +11,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Unzip project
+      - name: Find and unzip project
         run: |
-          unzip -o DragAfterTouch_project.zip -d project
+          set -eux
+          ZIP=$(find . -maxdepth 1 -type f -name '*.zip' | head -n 1)
+          test -n "$ZIP"
+          mkdir -p project
+          unzip -o "$ZIP" -d project
+          echo "Project files:"
+          find project -maxdepth 3 -type f | sort | head -100
 
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -42,3 +48,4 @@ jobs:
         with:
           name: DragAfterTouch-debug-apk
           path: project/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
